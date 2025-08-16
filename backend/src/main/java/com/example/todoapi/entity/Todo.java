@@ -13,6 +13,9 @@ public class Todo {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(nullable = false)
     private Boolean completed = false;
 
@@ -26,6 +29,12 @@ public class Todo {
     public Todo(String title) {
         this();
         this.title = title;
+    }
+
+    public Todo(String title, String description) {
+        this();
+        this.title = title;
+        this.description = description;
     }
 
     public Long getId() {
@@ -58,5 +67,13 @@ public class Todo {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

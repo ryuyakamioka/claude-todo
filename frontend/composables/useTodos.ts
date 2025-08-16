@@ -22,6 +22,21 @@ export const useTodos = () => {
     }
   }
 
+  const fetchTodoById = async (id: number) => {
+    try {
+      loading.value = true
+      error.value = null
+      const todo = await $fetch<Todo>(`${apiBase}/todos/${id}`)
+      return todo
+    } catch (err) {
+      error.value = 'Failed to fetch todo'
+      console.error('Error fetching todo:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   const addTodo = async (title: string) => {
     try {
       loading.value = true
@@ -87,6 +102,7 @@ export const useTodos = () => {
     loading: readonly(loading),
     error: readonly(error),
     fetchTodos,
+    fetchTodoById,
     addTodo,
     updateTodo,
     deleteTodo,

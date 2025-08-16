@@ -22,6 +22,17 @@ public class TodoController {
         return todoRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Todo> getTodoById(@PathVariable Long id) {
+        Optional<Todo> todoOptional = todoRepository.findById(id);
+        
+        if (todoOptional.isPresent()) {
+            return ResponseEntity.ok(todoOptional.get());
+        }
+        
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     public Todo createTodo(@RequestBody Todo todo) {
         return todoRepository.save(todo);
@@ -35,6 +46,9 @@ public class TodoController {
             Todo todo = todoOptional.get();
             if (todoDetails.getTitle() != null) {
                 todo.setTitle(todoDetails.getTitle());
+            }
+            if (todoDetails.getDescription() != null) {
+                todo.setDescription(todoDetails.getDescription());
             }
             if (todoDetails.getCompleted() != null) {
                 todo.setCompleted(todoDetails.getCompleted());
