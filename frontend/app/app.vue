@@ -65,6 +65,25 @@
               :disabled="loading"
               rows="3"
             ></textarea>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <label class="flex-1">
+                <span class="block text-sm font-medium text-gray-700 mb-1">Due Date</span>
+                <input
+                  v-model="newTodoDueDate"
+                  type="date"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  :disabled="loading"
+                />
+              </label>
+              <button
+                type="button"
+                @click="setDefaultDueDate"
+                class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 h-fit mt-6"
+                :disabled="loading"
+              >
+                1 Week Later
+              </button>
+            </div>
           </div>
         </form>
         
@@ -140,6 +159,19 @@
                     {{ todo.description }}
                   </p>
                 </div>
+                <div v-if="todo.dueDate" class="mt-2">
+                  <p
+                    :class="{
+                      'line-through text-gray-400': todo.completed,
+                      'text-red-500': !todo.completed && isOverdue(todo.dueDate),
+                      'text-blue-500': !todo.completed && !isOverdue(todo.dueDate)
+                    }"
+                    class="text-xs flex items-center gap-1"
+                  >
+                    📅 Due: {{ formatDateTime(todo.dueDate) }}
+                    <span v-if="!todo.completed && isOverdue(todo.dueDate)" class="text-red-500 font-medium">(Overdue)</span>
+                  </p>
+                </div>
               </div>
 
               <div v-else class="flex-1 space-y-3">
@@ -173,6 +205,14 @@
                   rows="3"
                   @keyup.escape="cancelEdit"
                 ></textarea>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                  <input
+                    v-model="editDueDate"
+                    type="date"
+                    class="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -191,9 +231,11 @@ const loading = ref(false)
 const error = ref(null)
 const newTodo = ref('')
 const newTodoDescription = ref('')
+const newTodoDueDate = ref('')
 const editingId = ref(null)
 const editTitle = ref('')
 const editDescription = ref('')
+const editDueDate = ref('')
 
 const fetchTodos = async () => {
   try {
@@ -209,13 +251,17 @@ const fetchTodos = async () => {
   }
 }
 
-const addTodo = async (title, description) => {
+const addTodo = async (title, description, dueDate) => {
   try {
     loading.value = true
     error.value = null
+    const body = { title, description, completed: false }
+    if (dueDate) {
+      body.dueDate = dueDate
+    }
     const newTodoItem = await $fetch(`${apiBase}/todos`, {
       method: 'POST',
-      body: { title, description, completed: false }
+      body
     })
     todos.value.push(newTodoItem)
   } catch (err) {
@@ -274,17 +320,41 @@ const toggleTodo = async (id) => {
   }
 }
 
+const setDefaultDueDate = () => {
+  const oneWeekLater = new Date()
+  oneWeekLater.setDate(oneWeekLater.getDate() + 7)
+  newTodoDueDate.value = oneWeekLater.toISOString().slice(0, 10)
+}
+
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString()
+}
+
+const isOverdue = (dateString) => {
+  if (!dateString) return false
+  const dueDate = new Date(dateString)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return dueDate < today
+}
+
 const handleSubmit = () => {
   if (newTodo.value.trim()) {
-    addTodo(newTodo.value.trim(), newTodoDescription.value.trim() || null)
+    const dueDate = newTodoDueDate.value ? new Date(newTodoDueDate.value + 'T23:59:59').toISOString() : null
+    addTodo(newTodo.value.trim(), newTodoDescription.value.trim() || null, dueDate)
     newTodo.value = ''
     newTodoDescription.value = ''
+    newTodoDueDate.value = ''
   }
 }
 
 const startEditing = (todo) => {
   editTitle.value = todo.title
   editDescription.value = todo.description || ''
+  editDueDate.value = todo.dueDate ? new Date(todo.dueDate).toISOString().slice(0, 10) : ''
   editingId.value = todo.id
   nextTick(() => {
     const editInput = document.querySelector('input[ref="editInput"]')
@@ -294,23 +364,30 @@ const startEditing = (todo) => {
 
 const saveEdit = () => {
   if (editTitle.value.trim() && editingId.value) {
-    updateTodo(editingId.value, { 
+    const updates = {
       title: editTitle.value.trim(),
       description: editDescription.value.trim() || null
-    })
+    }
+    if (editDueDate.value) {
+      updates.dueDate = new Date(editDueDate.value + 'T23:59:59').toISOString()
+    }
+    updateTodo(editingId.value, updates)
   }
   editingId.value = null
   editTitle.value = ''
   editDescription.value = ''
+  editDueDate.value = ''
 }
 
 const cancelEdit = () => {
   editingId.value = null
   editTitle.value = ''
   editDescription.value = ''
+  editDueDate.value = ''
 }
 
 onMounted(() => {
   fetchTodos()
+  setDefaultDueDate()
 })
 </script>

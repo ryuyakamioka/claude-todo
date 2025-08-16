@@ -29,8 +29,13 @@ public class Todo {
     @Schema(description = "Timestamp when the todo was created", example = "2025-08-16T10:00:00")
     private LocalDateTime createdAt;
 
+    @Column(name = "due_date")
+    @Schema(description = "Due date for the todo item", example = "2025-08-23T23:59:59")
+    private LocalDateTime dueDate;
+
     public Todo() {
         this.createdAt = LocalDateTime.now();
+        this.dueDate = LocalDateTime.now().plusWeeks(1);
     }
 
     public Todo(String title) {
@@ -82,5 +87,13 @@ public class Todo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 }

@@ -77,6 +77,9 @@ public class TodoController {
             if (todoDetails.getCompleted() != null) {
                 todo.setCompleted(todoDetails.getCompleted());
             }
+            if (todoDetails.getDueDate() != null) {
+                todo.setDueDate(todoDetails.getDueDate());
+            }
             return ResponseEntity.ok(todoRepository.save(todo));
         }
         
