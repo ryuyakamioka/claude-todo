@@ -84,6 +84,13 @@ npm run dev
 
 ## API仕様
 
+### Swagger UI（API実行可能）
+→ http://localhost:8081/swagger-ui.html でSwagger UIにアクセスできます  
+→ ブラウザでAPIをテスト実行することができます
+
+### OpenAPI仕様書
+→ http://localhost:8081/v3/api-docs でJSON形式のAPI仕様書を確認できます
+
 ### エンドポイント
 
 | メソッド | URL | 説明 |

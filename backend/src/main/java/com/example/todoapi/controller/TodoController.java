@@ -2,6 +2,11 @@ package com.example.todoapi.controller;
 
 import com.example.todoapi.entity.Todo;
 import com.example.todoapi.repository.TodoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,18 +17,27 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/todos")
 @CrossOrigin(origins = "http://localhost:3000")
+@Tag(name = "Todo", description = "Cat Todo API for managing tasks")
 public class TodoController {
 
     @Autowired
     private TodoRepository todoRepository;
 
     @GetMapping
+    @Operation(summary = "Get all todos", description = "Retrieve a list of all todo items")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved todo list")
     public List<Todo> getAllTodos() {
         return todoRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Todo> getTodoById(@PathVariable Long id) {
+    @Operation(summary = "Get todo by ID", description = "Retrieve a specific todo item by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todo found"),
+        @ApiResponse(responseCode = "404", description = "Todo not found")
+    })
+    public ResponseEntity<Todo> getTodoById(
+            @Parameter(description = "ID of the todo to retrieve") @PathVariable Long id) {
         Optional<Todo> todoOptional = todoRepository.findById(id);
         
         if (todoOptional.isPresent()) {
@@ -34,12 +48,22 @@ public class TodoController {
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
+    @Operation(summary = "Create a new todo", description = "Create a new todo item")
+    @ApiResponse(responseCode = "200", description = "Todo created successfully")
+    public Todo createTodo(
+            @Parameter(description = "Todo object to be created") @RequestBody Todo todo) {
         return todoRepository.save(todo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody Todo todoDetails) {
+    @Operation(summary = "Update a todo", description = "Update an existing todo item")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todo updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Todo not found")
+    })
+    public ResponseEntity<Todo> updateTodo(
+            @Parameter(description = "ID of the todo to update") @PathVariable Long id,
+            @Parameter(description = "Updated todo data") @RequestBody Todo todoDetails) {
         Optional<Todo> todoOptional = todoRepository.findById(id);
         
         if (todoOptional.isPresent()) {
@@ -60,7 +84,13 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Long id) {
+    @Operation(summary = "Delete a todo", description = "Delete a todo item by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todo deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Todo not found")
+    })
+    public ResponseEntity<Void> deleteTodo(
+            @Parameter(description = "ID of the todo to delete") @PathVariable Long id) {
         if (todoRepository.existsById(id)) {
             todoRepository.deleteById(id);
             return ResponseEntity.ok().build();
