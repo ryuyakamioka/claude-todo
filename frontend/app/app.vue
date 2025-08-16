@@ -103,12 +103,19 @@
             No todos yet. Add one above!
           </div>
           
-          <div v-else class="space-y-2">
+          <div v-else class="space-y-2" ref="todoListRef">
             <div
               v-for="todo in todos"
               :key="todo.id"
               class="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+              :data-id="todo.id"
             >
+              <!-- Drag handle -->
+              <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600 flex flex-col text-xs leading-none">
+                <span>⋮</span>
+                <span>⋮</span>
+              </div>
+              
               <input
                 type="checkbox"
                 :checked="todo.completed"
@@ -223,6 +230,8 @@
 </template>
 
 <script setup>
+import Sortable from 'sortablejs'
+
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase
 
@@ -313,6 +322,23 @@ const deleteTodo = async (id) => {
   }
 }
 
+const reorderTodos = async (newOrder) => {
+  try {
+    const todoIds = newOrder.map(todo => todo.id)
+    await $fetch(`${apiBase}/todos/reorder`, {
+      method: 'PUT',
+      body: todoIds
+    })
+    // Update local state with new order
+    todos.value = newOrder
+  } catch (err) {
+    error.value = 'Failed to reorder todos'
+    console.error('Error reordering todos:', err)
+    // Revert to original order on error
+    await fetchTodos()
+  }
+}
+
 const toggleTodo = async (id) => {
   const todo = todos.value.find(t => t.id === id)
   if (todo) {
@@ -386,8 +412,74 @@ const cancelEdit = () => {
   editDueDate.value = ''
 }
 
-onMounted(() => {
-  fetchTodos()
+// Drag and drop setup
+const todoListRef = ref(null)
+let sortableInstance = null
+
+onMounted(async () => {
+  await fetchTodos()
   setDefaultDueDate()
+  
+  // Wait for next tick to ensure DOM is ready
+  await nextTick()
+  
+  // Initialize sortable
+  if (todoListRef.value) {
+    sortableInstance = new Sortable(todoListRef.value, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      handle: '.drag-handle',
+      onEnd: async (evt) => {
+        const { oldIndex, newIndex } = evt
+        
+        if (oldIndex !== newIndex) {
+          // Create new order array
+          const newTodos = [...todos.value]
+          const movedItem = newTodos.splice(oldIndex, 1)[0]
+          newTodos.splice(newIndex, 0, movedItem)
+          
+          // Update local state immediately
+          todos.value = newTodos
+          
+          // Send to server
+          await reorderTodos(newTodos)
+        }
+      }
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (sortableInstance) {
+    sortableInstance.destroy()
+  }
 })
 </script>
+
+<style scoped>
+.sortable-ghost {
+  opacity: 0.5;
+  background: #f3f4f6;
+  border: 2px dashed #d1d5db;
+}
+
+.sortable-chosen {
+  cursor: grabbing;
+}
+
+.sortable-drag {
+  opacity: 0.8;
+  transform: rotate(2deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.cursor-move:hover {
+  cursor: grab;
+}
+
+.cursor-move:active {
+  cursor: grabbing;
+}
+</style>

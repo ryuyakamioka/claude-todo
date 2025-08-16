@@ -5,4 +5,5 @@ export interface Todo {
   completed: boolean;
   createdAt: string;
   dueDate?: string;
+  displayOrder: number;
 }
