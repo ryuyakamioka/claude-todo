@@ -1,6 +1,6 @@
-# TODO App
+# 🐱 Cat Todo
 
-シンプルなTODOアプリケーションです。Nuxt3フロントエンドとSpring Boot APIバックエンドで構成されています。
+可愛い猫をテーマにしたTODOアプリケーションです。Nuxt3フロントエンドとSpring Boot APIバックエンドで構成されています。
 
 ## 機能
 

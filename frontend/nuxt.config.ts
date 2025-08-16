@@ -7,5 +7,13 @@ export default defineNuxtConfig({
     public: {
       apiBase: 'http://localhost:8081/api'
     }
+  },
+  app: {
+    head: {
+      title: 'Cat Todo - Purr-fectly organized tasks',
+      meta: [
+        { name: 'description', content: 'A cute cat-themed todo application built with Nuxt3 and Spring Boot' }
+      ]
+    }
   }
 })
