@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +25,10 @@ public class TodoController {
     private TodoRepository todoRepository;
 
     @GetMapping
-    @Operation(summary = "Get all todos", description = "Retrieve a list of all todo items")
+    @Operation(summary = "Get all todos", description = "Retrieve a list of all todo items sorted by display order")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved todo list")
     public List<Todo> getAllTodos() {
-        return todoRepository.findAll();
+        return todoRepository.findAllByOrderByDisplayOrderAsc();
     }
 
     @GetMapping("/{id}")
@@ -52,6 +53,9 @@ public class TodoController {
     @ApiResponse(responseCode = "200", description = "Todo created successfully")
     public Todo createTodo(
             @Parameter(description = "Todo object to be created") @RequestBody Todo todo) {
+        // Set display order to be last
+        Long maxOrder = todoRepository.count();
+        todo.setDisplayOrder(maxOrder.intValue());
         return todoRepository.save(todo);
     }
 
@@ -80,6 +84,9 @@ public class TodoController {
             if (todoDetails.getDueDate() != null) {
                 todo.setDueDate(todoDetails.getDueDate());
             }
+            if (todoDetails.getDisplayOrder() != null) {
+                todo.setDisplayOrder(todoDetails.getDisplayOrder());
+            }
             return ResponseEntity.ok(todoRepository.save(todo));
         }
         
@@ -100,5 +107,26 @@ public class TodoController {
         }
         
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/reorder")
+    @Operation(summary = "Reorder todos", description = "Update display order of multiple todos")
+    @ApiResponse(responseCode = "200", description = "Todos reordered successfully")
+    public ResponseEntity<List<Todo>> reorderTodos(
+            @Parameter(description = "Array of todo IDs in new order") @RequestBody List<Long> todoIds) {
+        List<Todo> reorderedTodos = new ArrayList<>();
+        
+        for (int i = 0; i < todoIds.size(); i++) {
+            Long todoId = todoIds.get(i);
+            Optional<Todo> todoOptional = todoRepository.findById(todoId);
+            
+            if (todoOptional.isPresent()) {
+                Todo todo = todoOptional.get();
+                todo.setDisplayOrder(i);
+                reorderedTodos.add(todoRepository.save(todo));
+            }
+        }
+        
+        return ResponseEntity.ok(reorderedTodos);
     }
 }

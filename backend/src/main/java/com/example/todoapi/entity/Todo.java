@@ -33,6 +33,10 @@ public class Todo {
     @Schema(description = "Due date for the todo item", example = "2025-08-23T23:59:59")
     private LocalDateTime dueDate;
 
+    @Column(name = "display_order", nullable = false)
+    @Schema(description = "Display order for sorting todos", example = "1")
+    private Integer displayOrder = 0;
+
     public Todo() {
         this.createdAt = LocalDateTime.now();
         this.dueDate = LocalDateTime.now().plusWeeks(1);
@@ -95,5 +99,13 @@ public class Todo {
 
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }
