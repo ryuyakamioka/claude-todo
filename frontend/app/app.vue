@@ -164,9 +164,14 @@ const updateTodo = async (id, updates) => {
   try {
     loading.value = true
     error.value = null
+    const currentTodo = todos.value.find(todo => todo.id === id)
+    if (!currentTodo) {
+      throw new Error('Todo not found')
+    }
+    
     const updatedTodo = await $fetch(`${apiBase}/todos/${id}`, {
       method: 'PUT',
-      body: updates
+      body: { ...currentTodo, ...updates }
     })
     const index = todos.value.findIndex(todo => todo.id === id)
     if (index !== -1) {

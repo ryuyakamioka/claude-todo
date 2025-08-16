@@ -33,8 +33,12 @@ public class TodoController {
         
         if (todoOptional.isPresent()) {
             Todo todo = todoOptional.get();
-            todo.setTitle(todoDetails.getTitle());
-            todo.setCompleted(todoDetails.getCompleted());
+            if (todoDetails.getTitle() != null) {
+                todo.setTitle(todoDetails.getTitle());
+            }
+            if (todoDetails.getCompleted() != null) {
+                todo.setCompleted(todoDetails.getCompleted());
+            }
             return ResponseEntity.ok(todoRepository.save(todo));
         }
         
