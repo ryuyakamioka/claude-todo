@@ -12,7 +12,7 @@ export const useTodos = () => {
     try {
       loading.value = true
       error.value = null
-      const { data } = await $fetch<Todo[]>(`${apiBase}/todos`)
+      const data = await $fetch<Todo[]>(`${apiBase}/todos`)
       todos.value = data || []
     } catch (err) {
       error.value = 'Failed to fetch todos'
