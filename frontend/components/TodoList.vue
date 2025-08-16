@@ -211,10 +211,8 @@ const handleCancelEdit = () => {
 }
 
 // Setup drag and drop
-onMounted(async () => {
-  await nextTick()
-  
-  if (todoListRef.value) {
+const initializeSortable = () => {
+  if (todoListRef.value && props.todos.length > 0 && !sortableInstance) {
     sortableInstance = new Sortable(todoListRef.value, {
       animation: 150,
       ghostClass: 'sortable-ghost',
@@ -234,6 +232,20 @@ onMounted(async () => {
       }
     })
   }
+}
+
+// Watch for todos changes to initialize sortable when data is available
+watch(() => props.todos, () => {
+  nextTick(() => {
+    if (props.todos.length > 0 && !sortableInstance) {
+      initializeSortable()
+    }
+  })
+}, { immediate: true })
+
+onMounted(async () => {
+  await nextTick()
+  initializeSortable()
 })
 
 onUnmounted(() => {
