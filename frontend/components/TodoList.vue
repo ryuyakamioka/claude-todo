@@ -62,7 +62,7 @@
                 </svg>
               </button>
               <button
-                @click="$emit('delete', todo.id)"
+                @click="handleDeleteTodo(todo)"
                 class="p-1 text-gray-400 hover:text-red-600 transition-colors"
                 title="Delete"
               >
@@ -213,6 +213,15 @@ const handleCancelEdit = () => {
   editTitle.value = ''
   editDescription.value = ''
   editDueDate.value = ''
+}
+
+// Delete handler with confirmation
+const handleDeleteTodo = (todo) => {
+  const message = `「${todo.title}」を削除しますか？\n\nこの操作は取り消せません。`
+  
+  if (confirm(message)) {
+    emit('delete', todo.id)
+  }
 }
 
 // Setup drag and drop
