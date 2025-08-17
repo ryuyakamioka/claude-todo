@@ -1,6 +1,18 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
+    <!-- Hamburger Button -->
+    <HamburgerButton 
+      :is-menu-open="isMenuOpen" 
+      @toggle="toggleMenu" 
+    />
+    
+    <!-- Side Menu -->
+    <SideMenu 
+      :is-open="isMenuOpen" 
+      @close="closeMenu" 
+    />
+    
+    <div class="container mx-auto px-4 py-8 transition-all duration-300" :class="{ 'md:ml-64': isMenuOpen }">
       <!-- Header -->
       <HeaderSection />
       
@@ -35,6 +47,7 @@ const apiBase = config.public.apiBase
 const todos = ref([])
 const loading = ref(false)
 const error = ref(null)
+const isMenuOpen = ref(false)
 
 // API functions
 const fetchTodos = async () => {
@@ -142,6 +155,15 @@ const toggleTodo = async (id) => {
   if (todo) {
     await updateTodo(id, { completed: !todo.completed })
   }
+}
+
+// Menu functions
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
+}
+
+const closeMenu = () => {
+  isMenuOpen.value = false
 }
 
 // Initialize
