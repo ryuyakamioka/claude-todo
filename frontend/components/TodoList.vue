@@ -12,7 +12,9 @@
 
     <!-- Empty state -->
     <div v-else-if="todos.length === 0" class="text-center text-gray-500 py-8">
-      No todos yet. Add one above!
+      <div class="text-6xl mb-4">🐱</div>
+      <p class="text-lg font-medium">まだTODOがありません</p>
+      <p class="text-sm">上のフォームから新しいタスクを追加してください</p>
     </div>
     
     <!-- Todo Items -->

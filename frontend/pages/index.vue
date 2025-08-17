@@ -24,9 +24,16 @@
           @submit="handleFormSubmit" 
         />
         
+        <!-- Todo Filter -->
+        <TodoFilter 
+          :current-filter="currentFilter"
+          :todos="todos"
+          @filter-change="handleFilterChange"
+        />
+        
         <!-- Todo List -->
         <TodoList 
-          :todos="todos"
+          :todos="filteredTodos"
           :loading="loading"
           :error="error"
           @toggle="toggleTodo"
@@ -48,6 +55,7 @@ const todos = ref([])
 const loading = ref(false)
 const error = ref(null)
 const isMenuOpen = ref(false)
+const currentFilter = ref('pending')
 
 // API functions
 const fetchTodos = async () => {
@@ -164,6 +172,22 @@ const toggleMenu = () => {
 
 const closeMenu = () => {
   isMenuOpen.value = false
+}
+
+// Filter functions
+const filteredTodos = computed(() => {
+  switch (currentFilter.value) {
+    case 'completed':
+      return todos.value.filter(todo => todo.completed)
+    case 'pending':
+      return todos.value.filter(todo => !todo.completed)
+    default:
+      return todos.value
+  }
+})
+
+const handleFilterChange = (filter) => {
+  currentFilter.value = filter
 }
 
 // Initialize
