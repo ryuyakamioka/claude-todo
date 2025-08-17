@@ -1,5 +1,6 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="mb-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <form @submit.prevent="handleSubmit">
     <div class="space-y-4">
       <!-- Title Input - Always Visible -->
       <div class="flex flex-col sm:flex-row gap-4">
@@ -92,7 +93,8 @@
         </div>
       </div>
     </div>
-  </form>
+    </form>
+  </div>
 </template>
 
 <script setup>
