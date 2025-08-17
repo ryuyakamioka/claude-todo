@@ -22,9 +22,10 @@
       <div
         v-for="todo in todos"
         :key="todo.id"
-        class="flex items-center gap-3 p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+        class="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
         :data-id="todo.id"
       >
+        <div class="flex items-center gap-3">
         <!-- Drag handle -->
         <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600 flex flex-col text-xs leading-none">
           <span>⋮</span>
@@ -41,11 +42,12 @@
         <div v-if="!editingId || editingId !== todo.id" class="flex-1 flex flex-col">
           <div class="flex items-center justify-between">
             <span
+              @click="handleStartEditing(todo)"
               :class="{
                 'line-through text-gray-500': todo.completed,
                 'text-gray-800': !todo.completed
               }"
-              class="text-lg font-medium"
+              class="text-lg font-medium cursor-pointer hover:text-blue-600 transition-colors"
             >
               {{ todo.title }}
             </span>
@@ -135,6 +137,7 @@
               class="w-full px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
         </div>
       </div>
     </div>
